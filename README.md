@@ -13,11 +13,11 @@ On the main page of this repository, click Code and then click Download. Create 
 ### Git method
 
 Create your repository on your git manager of choice, then do the following:
-``
+```
 git init <repo-name>
 git pull https://github.com/russelcs/dam
 git branch -m <master-branch-name>
 git push -u origin <master-branch-name>
-``
+```
 
 Replace the text in angle brackets, along with the angle brackets, with your own repo and branch names.
