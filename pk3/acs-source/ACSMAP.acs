@@ -1,0 +1,53 @@
+#library "ACSMAP"
+
+#include "zcommon.acs"
+
+#include "STRLIB.acs"
+
+#define LINE_BUFFER 100
+
+script "ACSMAP_INIT" OPEN
+{
+    int start = SystemTime();
+    int lmp = 0;
+    lmp = LumpOpen("TXTMAP", lmp);
+    int lineCounter = LINE_BUFFER;
+    while(lmp != -1) {
+        // newScanner(LumpReadString(lmp, 0));
+        // int count = 0;
+        // while(scanHasNext()) {
+        //     int scn = scanNextLine();
+        //     int idx = findStr(LumpReadString(lmp, 0), "sector");
+        //     //Log(s:scn, s:" ", i:idx);
+
+        //     if(idx != -1)
+        //         count++;
+        //     lineCounter--;
+        //     // if(lineCounter <= 0) {
+        //     //     delay(1);
+        //     //     lineCounter = LINE_BUFFER;
+        //     // }
+        // }
+        // Log(s:"Count: ", i:count);
+
+        // int count = 0;
+        // while(pos != -1) {
+        //     findStrAt(text, "sector", pos);
+        //     count++;
+        // }
+        // Log(s:"Count: ", i:count);
+
+        str text = LumpReadString(lmp, 0);
+        str key = "sector";
+        int pos = findStrAt(text, key, 0);
+        str out = StrParam(s:"First position of word found at ", i:pos);
+        out = StrParam(s:out, s:" // Check: ", s:strMid(text, pos, strLen(key)));
+        Log(s:out);
+        
+        lmp = LumpOpen("TXTMAP", lmp);
+    }
+
+    int diff = SystemTime() - start;
+
+    Log(s:Strftime(diff, "Operation completed successfully in %M minutes, %S seconds."));
+}

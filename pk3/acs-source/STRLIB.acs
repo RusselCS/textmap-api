@@ -1,0 +1,117 @@
+
+function int findChar(str strin, int ch)
+{
+    return findCharAt(strin, ch, 0);
+}
+
+function int findCharAt(str strin, int ch, int start)
+{
+    int len = StrLen(strin);
+
+    for(int i = start; i < len; i++) {
+        if(GetChar(strin, i) == ch) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+function int findStr(str strin, str key)
+{
+    return findStrAt(strin, key, 0);
+}
+
+#define FINDSTR_NOTFOUND -1
+#define FINDSTR_PAGEEND -2
+
+#define FINDSTR_PAGE 1000
+
+function int findStrAt(str strin, str key, int start) {
+
+    int res = 0;
+    int page = start;
+    do
+    {
+        res = ACS_NamedExecuteWithResult("strlib_findStrAt", strin, key, page);
+        page += FINDSTR_PAGE;
+        if(page < 0)
+            return FINDSTR_NOTFOUND;
+    }
+    while(res == -2);
+
+    return res;
+}
+
+script "strlib_findStrAt" (int strin, int key, int start)
+{
+    int keylen = StrLen(key);
+    int len = StrLen(strin);
+
+    if(len <= keyLen) {
+        SetResultValue((StrCmp(strIn, key)==0) -1);
+        terminate;
+    }
+
+    int i, passes;
+    passes = len-keyLen-start;
+
+    if(passes > FINDSTR_PAGE) {
+        passes = FINDSTR_PAGE;
+    }
+
+    for(i = 0; i < passes; i++)
+    {
+        int ii;
+        for(ii = 0; ii < keyLen; ii++)
+        {
+            if(GetChar(strin, i+ii+start) != GetChar(key, ii))
+                break;
+        }
+        if(ii == keyLen)
+        {
+            SetResultValue(i+start);
+            terminate;
+        }
+    }
+
+    if(i == passes) {
+        SetResultValue(FINDSTR_PAGEEND);
+        terminate;
+    }
+    SetResultValue(FINDSTR_NOTFOUND);
+}
+
+function str StrBetween(str strin, int start, int end)
+{
+    int len = StrLen(strin);
+    return StrMid(strin, start, len-start-end);
+}
+
+str scanner;
+int scanIdx;
+
+function void newScanner(str scn) { scanner = scn; scanIdx = 0; }
+function int scanHasNext(void) { return scanIdx != -1 && scanIdx < strLen(scanner); }
+
+function str scanNextLine(void)
+{
+    int pos = findChar(scanner, '\n');
+    int len = StrLen(scanner);
+    str ret;
+
+    if(pos == -1) {
+        if(scanHasNext()) {
+            ret = strRight(scanner, scanIdx);
+            scanIdx = strLen(scanner);
+        } else {
+            ret = "";
+        }
+    } else {
+        ret = StrBetween(scanner, scanIdx, pos-1);
+        scanIdx = pos+1;
+    }
+
+    return ret;
+}
+
